@@ -1,30 +1,30 @@
 # laravel-learn-demo
 
 #### 项目介绍
-blog-demo
+这是一个使用laravel框架开发的b2c商城 供学习用....
+如果有好的建议或者是问题,可以直接@me,希望我们能一起进步成长!
 
 #### 软件架构
-软件架构说明
+尽量使用更多laravel新特性
 
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. git clone 下来 执行 composer install 即可
+2. 配置自己的数据库,执行迁移文件即可
+3. 本人是在homestead 上开发的,如有homestead使用方面的问题可以找我!
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+1.版本 laravel 5.6
+
+2. 需要你的开发环境要支持哦,最好不要用 wamp phpstudy xampp吧,里面
+会涉及到 redis 定时任务的操作
 
 #### 参与贡献
 
-1. Fork 本项目
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
+1. lnssm
+
 
 
 #### 码云特技
