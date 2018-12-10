@@ -11,9 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-//
-    return view('welcome');
-});
 
+
+//Route::get('/', function () {
+//    return view('welcome');
+//});
+Route::get("/",'PagesController@root')->name('root');//name为路由命名,为生成url和重定向提供方便
 
