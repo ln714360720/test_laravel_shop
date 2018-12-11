@@ -10,10 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-
-use function foo\func;
-
 Route::get("/",'PagesController@root')->name('root');//name为路由命名,为生成url和重定向提供方便
 //自带的登录注册  路由信息在vendor/laravel/framework/src/Illuminate/Routing/Router.php里的auth方法里
 Auth::routes();//
