@@ -21,7 +21,7 @@ Route::group(['middleware'=>'auth'],function (){
    Route::get('/email_verification/send', 'EmailVerificationController@send')->name('email_verification.send');//用户主动发送邮件
     //email_verified这个中间件是自己定义的,只有当邮箱验证通过了,才执行以下方法
     Route::group(['middleware'=>'email_verified'],function (){
-    
+        Route::get('user_addresses','UserAddressesController@index')->name('user_addresses.index');
     });
 });
 

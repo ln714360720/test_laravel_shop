@@ -25,6 +25,7 @@
                     alert(data.msg)
                 },
                 error:function (data,status) {
+                    console.log(data);
                     alert(data.responseJSON.msg);
 
                 }

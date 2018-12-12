@@ -28,6 +28,9 @@ class User extends Authenticatable
     ];
     
    protected $casts=[
-       'email_verified'=>'boolean',
+       'email_verified'=>'boolean',//这个字段呢,定义了属性转化 被转化成原生类型
    ];
+   public function addresses(){
+       return $this->hasMany(UserAddress::class,'','id');
+   }
 }
