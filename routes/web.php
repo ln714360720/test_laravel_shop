@@ -22,6 +22,8 @@ Route::group(['middleware'=>'auth'],function (){
     //email_verified这个中间件是自己定义的,只有当邮箱验证通过了,才执行以下方法
     Route::group(['middleware'=>'email_verified'],function (){
         Route::get('user_addresses','UserAddressesController@index')->name('user_addresses.index');
+        Route::get('user_addresses/create', 'UserAddressesController@create')->name('user_addresses.create');
+        Route::post('user_addresses','UserAddressesController@store')->name('user_addresses.store');
     });
 });
 
