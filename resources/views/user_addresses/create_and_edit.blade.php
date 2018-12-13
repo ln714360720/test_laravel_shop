@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', '新增收货地址')
+@section('title', ($address->id?'修改':'新增').'收货地址')
 
 @section('content')
     <div class="row">
@@ -7,7 +7,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="text-center">
-                        新增收货地址
+                        {{($address->id?'修改':'新增')}}收货地址
                     </h2>
                 </div>
                 <div class="panel-body">
@@ -25,11 +25,17 @@
                 <!-- 输出后端报错结束 -->
                     <!-- inline-template 代表通过内联方式引入组件 -->
                     <user-addresses-create-and-edit inline-template>
-                        <form class="form-horizontal" role="form" method="post" action="{{route('user_addresses.store')}}">
+                        @if ($address->id)
+                            <form class="form-horizontal" role="form" method="post" action="{{route('user_addresses.update',array('user_address'=>$address->id))}}" >
+                                {{method_field('PUT')}}
+                            @else
+                            <form class="form-horizontal" role="form" method="post" action="{{route('user_addresses.store')}}" >
+                            @endif
+
                             <!-- 引入 csrf token 字段 -->
                         {{ csrf_field() }}
                         <!-- 注意这里多了 @change -->
-                            <select-district @change="onDistrictChanged" inline-template>
+                            <select-district :init-value="{{ json_encode([$address->province, $address->city, $address->district]) }}" @change="onDistrictChanged" inline-template>
                                 <div class="form-group">
                                     <label class="control-label col-sm-2">省市区</label>
                                     <div class="col-sm-3">
@@ -83,7 +89,8 @@
                                 </div>
                             </div>
                             <div class="form-group text-center">
-                                <button type="submit" class="btn btn-primary">提交</button>
+                                <button type="submit" class="btn btn-primary" >提交</button>
+
                             </div>
                         </form>
                     </user-addresses-create-and-edit>
@@ -92,3 +99,31 @@
         </div>
     </div>
 @endsection
+{{--<script type="text/javascript">--}}
+    {{--window.onload=function () {--}}
+            {{--$(document).ready(function () {--}}
+                {{--$('#submitBtn').click(function () {--}}
+
+                    {{--$.ajax({--}}
+                        {{--headers: {--}}
+                            {{--'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+                        {{--},--}}
+                        {{--url:"{{route('user_addresses.store')}}",--}}
+                        {{--data:$('form').serialize(),--}}
+                        {{--type:'post',--}}
+                        {{--success:function (msg) {--}}
+                          {{--console.log(msg);--}}
+                        {{--},--}}
+                        {{--error:function (errormsg) {--}}
+                            {{--//console.log(errormsg);--}}
+                        {{--}--}}
+                    {{--})--}}
+                {{--})--}}
+
+
+
+
+
+    {{--})--}}
+    {{--}--}}
+{{--</script>--}}

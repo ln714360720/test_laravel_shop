@@ -5,8 +5,13 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
 class Handler extends ExceptionHandler
 {
+    
     /**
      * A list of the exception types that are not reported.
      *
@@ -46,6 +51,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+       if($exception instanceof ValidationException && request()->expectsJson()){
+           $arr=[
+               'status'=>-1,
+               'msg'=>$exception->errors(),
+               'data'=>array()
+               
+           ];
+           return new JsonResponse($arr);
+       }
+      
         return parent::render($request, $exception);
     }
+    
 }

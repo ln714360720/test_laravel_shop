@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+
 class UserAddressRequest extends Request
 {
     /**
@@ -33,6 +34,9 @@ class UserAddressRequest extends Request
             'contact_phone'=>'电话',
         ];
     }
+   
+
+   
 }
 
 
