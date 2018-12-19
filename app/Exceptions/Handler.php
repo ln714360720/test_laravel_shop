@@ -3,12 +3,11 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-
 class Handler extends ExceptionHandler
 {
     
@@ -60,7 +59,17 @@ class Handler extends ExceptionHandler
            ];
            return new JsonResponse($arr);
        }
-      
+       //处理laravel自带用户认证返回json格式的处理
+//if ($exception instanceof  AuthenticationException && request()->expectsJson()){
+//           $arr=[
+//               'status'=>401,
+//               'msg'=>$exception->getMessage(),
+//               'data'=>array()
+//
+//           ];
+//           return new JsonResponse($arr);
+//       }
+//
         return parent::render($request, $exception);
     }
     

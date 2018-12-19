@@ -5,7 +5,8 @@ namespace App\Exceptions;
 use Illuminate\Http\Request;
 use Illuminate\Auth\AuthenticationException;
 
-class AjaxRequestException extends AuthenticationException
+//class AjaxRequestException extends AuthenticationException
+class AjaxRequestException
 {
     /**
      * AjaxRequestException constructor.

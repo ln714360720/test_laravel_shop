@@ -46,14 +46,46 @@ class ProductsController extends Controller
         return view('products.index',['products'=>$products,'filters'=>['search'=>$search,'order'=>$order]]);
     }
     
+    /**显示商品详情
+     * @param Request $request
+     * @param Product $product 商品模型
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws InvalidRequestException
+     */
     public function show(Request $request,Product $product)
     {
         //判断是否上架,如果没有上架,则抛出异常
         if(!$product->on_sale){
             throw new InvalidRequestException('商品未上架');
         }
-        return view('products.show',['product'=>$product]);
+        $favorite=false;
+        if($user=$request->user()){
+            $favorite=boolval($user->favoriteProducts()->find($product->id));
+        }
+        return view('products.show',['product'=>$product,'favorite'=>$favorite]);
     }
     
-   
+    /**用户添加收藏
+     * @param Product $product
+     * @param Request $request
+     * @return array
+     */
+    public function favor(Product $product,Request $request)
+    {
+        $user=$request->user();
+        if($user->favoriteProducts()->find($product->id)){
+            return [];
+        }
+        $user->favoriteProducts()->attach($product);
+        return [];
+    }
+    
+    public function disfavor(Product $product,Request $request)
+    {
+        
+        $user=$request->user();
+        $res=$user->favoriteProducts()->detach($product);
+        dd($res);
+//        return [];
+    }
 }

@@ -30,7 +30,11 @@
                             </div>
                             <div class="cart_amount"><label>数量</label><input type="text" class="form-control input-sm" value="1"><span>件</span><span class="stock"></span></div>
                             <div class="buttons">
-                                <button class="btn btn-success btn-favor">❤ 收藏</button>
+                                @if($favorite)
+                                    <button class="btn btn-success btn-disfavor">取消收藏</button>
+                                @else
+                                    <button class="btn btn-success btn-favor">❤ 收藏</button>
+                                @endif
                                 <button class="btn btn-primary btn-add-to-cart">加入购物车</button>
                             </div>
                         </div>
@@ -63,6 +67,35 @@
                 $('.product-info .price span').text($(this).data('price'));
                 $('.product-info .stock').text('库存：' + $(this).data('stock') + '件');
             })
+        })
+        //收藏
+        $('.btn-favor').click(function () {
+            axios.post('{{route('products.favor',['product'=>$product->id])}}')
+                .then(function () {//请求成功后执行
+                    swal('收藏成功','','success')
+                },function (error) {//请求失败后会执行这个回调
+                    //如果返回码是401 代表没有登录
+                    if(error.response && error.response.status===401){
+                        swal('请先登录','','error');
+                    }else if(error.response && error.response.data.msg){
+                        swal(error.response.data.msg,'','error');
+                    }else{
+                        swal('系统出错了','','error');
+                    }
+
+                })
+        })
+        //取消收藏
+        $('.btn-disfavor').click(function () {
+            axios.delete('{{route('products.disfavor',['product'=>$product->id])}}')
+                .then(function () {//请求成功后执行
+                    swal('执行成功','','success').then(function () {
+                        location.reload();
+                    })
+
+                },function (error) {
+                    console.log(error);
+                })
         })
     </script>
     @endsection

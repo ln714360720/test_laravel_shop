@@ -25,4 +25,5 @@ class CheckIfEmailVerified
        
         return $next($request);
     }
+    
 }

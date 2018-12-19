@@ -30,7 +30,17 @@ class User extends Authenticatable
    protected $casts=[
        'email_verified'=>'boolean',//这个字段呢,定义了属性转化 被转化成原生类型
    ];
+    
+    /**定义用户与收货地址的关联关系
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
    public function addresses(){
        return $this->hasMany(UserAddress::class,'','id');
+   }
+    
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class,'user_favorite_products')
+            ->withTimestamps()->orderBy('user_favorite_products.created_at','desc');
    }
 }
