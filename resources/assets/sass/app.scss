@@ -53,7 +53,7 @@ body{
     }
   }
 }
-.products-index-page {
+.products-index-page,.products-favorites-page {
   .products-list {
     padding: 0 15px;
     .product-item {
@@ -61,11 +61,12 @@ body{
       margin-bottom: 10px;
       .product-content {
         border: 1px solid #eee;
+
         .top {
           padding: 5px;
           width: 200px;
           img {
-            width: 100%;
+            width: 100px;
           }
           .price {
             margin-top: 5px;
