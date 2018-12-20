@@ -37,10 +37,15 @@ class User extends Authenticatable
    public function addresses(){
        return $this->hasMany(UserAddress::class,'','id');
    }
-    
+    //用户与商品进行多对多关系
     public function favoriteProducts()
     {
         return $this->belongsToMany(Product::class,'user_favorite_products')
             ->withTimestamps()->orderBy('user_favorite_products.created_at','desc');
    }
+   //用户与购物车建立一对多关系
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }
