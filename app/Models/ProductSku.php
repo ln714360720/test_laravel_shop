@@ -27,6 +27,6 @@ class ProductSku extends Model
         if($amount<0){
             throw new InternalException('加库存不可小于0');
         }
-        $this->increment('stock',$amount);
+      return  $this->increment('stock',$amount);
     }
 }
