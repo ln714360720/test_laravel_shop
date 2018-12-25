@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class EmailVerificationNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable;//说明使命队列处理,并实现了ShouldQueue接口,所以要开启一个队列任务
 
     /**
      * Create a new notification instance.
@@ -42,6 +42,7 @@ class EmailVerificationNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+        
         $token=Str::random(16);
         Cache::put('email_verification_'.$notifiable->email, $token, 30);
         $url=route('email_verification.verify',['email'=>$notifiable->email,'token'=>$token]);

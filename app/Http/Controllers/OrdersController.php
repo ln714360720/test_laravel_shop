@@ -77,4 +77,22 @@ class OrdersController extends Controller
             ->paginate(16);
         return view('orders.index',compact('orders'));
     }
+    
+    /**
+     * 这里的 load() 方法与上一章节介绍的 with() 预加载方法有些类似，称为 延迟预加载，不同点在于 load() 是在已经查询出来的模型上调用，而 with() 则是在 ORM 查询构造器上调用。
+     * @param Order   $order
+     * @param Request $request
+     */
+    public function show(Order $order,Request $request)
+    {
+        try{
+            $this->authorize('own',$order);
+        }catch (\Exception $e){
+            throw  new InvalidRequestException('不可能让你看!');
+        }
+       
+        $order=$order->load(['items.productSku','items.product']);
+        return view('orders.show',compact('order'));
+//        dd($order->load(['items.productSku','items.product']));
+    }
 }

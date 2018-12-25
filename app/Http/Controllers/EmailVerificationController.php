@@ -44,7 +44,13 @@ class EmailVerificationController extends Controller
         if($user->email_verified){
             throw new InvalidRequestException('你已经验证过邮箱了',400);
         }
-        $user->notify(new EmailVerificationNotification());
+        try{
+            $user->notify(new EmailVerificationNotification());
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+        
+       
         return view('pages.success',['msg'=>'邮件发送成功']);
     }
 }
