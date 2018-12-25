@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
+use App\Http\Requests\Request;
 use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
@@ -65,5 +66,15 @@ class OrdersController extends Controller
         });
         $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
         return $order;
+    }
+    
+    public function index(Request $request)
+    {
+        //使用with方法预加载 避免n+1问题
+        $orders=Order::query()->with(['items.product','items.productSku'])
+            ->where('user_id',$request->user()->id)
+            ->orderBy('created_at','desc')
+            ->paginate(16);
+        return view('orders.index',compact('orders'));
     }
 }
