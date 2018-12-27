@@ -15,4 +15,3 @@ yarn-error.log
 /public/js
 /public/css
 /resources/wechat_pay
-/config/pay.php
