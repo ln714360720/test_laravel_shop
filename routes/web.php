@@ -42,7 +42,20 @@ Route::group(['middleware'=>'auth'],function (){
         Route::get('orders',"OrdersController@index")->name('orders.index');
         //查看订单
         Route::get('orders/{order}','OrdersController@show')->name('order.show');
+        //订单支付
+        Route::get('payment/{order}/alipay','PaymentController@payByAlipay')->name('payment.alipay');
+        //支付宝支付成功后回调 页面显示
+        Route::get('payment/alipay/return','PaymentController@alipayReturn')->name('payment.alipay.return');
     });
+});
+//支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
+Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
+Route::get('alipay',function (){
+    return app('alipay')->web([
+        'out_trade_no'=>time(),
+        'total_amount'=>1,
+        'subject'=>'test subject - 测试',
+    ]);
 });
 Route::get('products','ProductsController@index')->name("products.index");
 Route::get('products/{product}','ProductsController@show')->name("products.show");
