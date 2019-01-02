@@ -49,6 +49,7 @@ Route::group(['middleware'=>'auth'],function (){
         //调起微信支付页面
         Route::get('payment/{order}/wechat','PaymentController@payByWechat')->name('payment.wechat');
     });
+    Route::post('orders/{order}/received','OrdersController@received')->name('orders.received');
 });
 //支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');

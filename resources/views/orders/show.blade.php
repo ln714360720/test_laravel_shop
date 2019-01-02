@@ -58,6 +58,18 @@
                                 <div class="line-label">订单编号：</div>
                                 <div class="line-value">{{ $order->no }}</div>
                             </div>
+                            {{--输出物流信息--}}
+                            <div class="line">
+                                <div class="line-label">物流状态:</div>
+                                <div class="line-value">{{\App\Models\Order::$shipStatusMap[$order->ship_status]}}</div>
+                            </div>
+                            {{--如果有物流信息则展示--}}
+                            @if($order->ship_data)
+                            <div class="line">
+                                <div class="line-label">物流信息:</div>
+                                <div class="line-value">物流公司:{{$order->ship_data['express_company']}}&nbsp;物流订单号:{{$order->ship_data['express_no']}}</div>
+                            </div>
+                                @endif
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -78,6 +90,15 @@
                                     @else
                                         未支付
                                     @endif
+                                    {{--如果订单的发货状态为已发货,则展示确认收货按钮--}}
+                                        @if($order->ship_status=== \App\Models\Order::SHIP_STATUS_DELIVERED)
+                                    <div class="receive-button">
+                                        <form action="{{route('orders.received',[$order->id])}}" method="post">
+                                            {{csrf_field()}}
+                                            <button type="button" id="btn-received" class="btn btn-success btn-sm">确认收货</button>
+                                        </form>
+                                    </div>
+                                            @endif
                                 </div>
                             </div>
                             @if(!$order->paid_at && ! $order->closed)
@@ -107,6 +128,26 @@
                     if(result){
                         location.reload();
                     }
+                })
+            })
+        })
+        //确认收货按钮点击事件
+        $('#btn-received').click(function () {
+            //弹出确认框
+            swal({
+                title:'确认已经收到商品?',
+                icon:'warning',
+                bottons:true,
+                dangerMode:true,
+                buttons:['取消','确认收货']
+            }).then(function (ret) {
+                //如果点击取消则不做任何操作
+                if(!ret){
+                    return;
+                }
+                //ajax提交确认操作
+                axios.post('{{route('orders.received',[$order->id])}}').then(function () {
+                    location.reload();
                 })
             })
         })
