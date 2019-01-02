@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPaid;
 use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 use Carbon\Carbon;
+use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -47,6 +49,9 @@ class PaymentController extends Controller
         return view('pages.success',['msg'=>'付款成功']);
     }
     
+    /** 支付宝异步通知
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function alipayNotify()
     {
         //校验数据
@@ -58,7 +63,7 @@ class PaymentController extends Controller
         //通过out_trade_no 拿到订单流水号,并在数据库中查询
         $order=Order::where('no',$data->out_trade_no)->first();
         if(!$order){
-            return view('pages.error',['msg'=>'订单支付出现错误']);
+            return 'fail';
         }
         //如果这笔订单已经是支付状态,则返回 success
         if($order->paid_at){
@@ -69,6 +74,64 @@ class PaymentController extends Controller
             'payment_method'=>'alipay',
             'payment_no'=>$data->trade_no,//支付宝订单号
         ]);
+        $this->afterPaid($order);
         return app('alipay')->success();
+    }
+    
+    /**触发微信支付
+     * @param Order   $order
+     * @param Request $request
+     * @return mixed
+     * @throws InvalidRequestException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function payByWechat(Order $order, Request $request)
+    {
+        //验证权限
+        $this->authorize('own',$order);
+        //校验订单状态
+        if($order->paid_at|| $order->closed){
+            throw new InvalidRequestException('订单状态不正确');
+        }
+        //scan方法为微信扫码支付
+        $data=[
+            'out_trade_no'=>$order->no,
+            'total_fee'=>$order->total_amount*100,//微信支付的金额单位是分
+            'body'=>'支付测试订单:'.$order->no,
+        ];
+        $wechatOrder= app('wechat_pay')->scan($data);
+        //创建二维码:
+        $qrCode=new QrCode($wechatOrder->code_url);
+        return response($qrCode->writeString(),200,['Content-Type'=>$qrCode->getContentType()]);
+    
+    }
+    
+    /** 微信异步通知
+     * @return string
+     */
+    public function wechatNotify()
+    {
+        //校验回调是否正确
+        $data=app('wechat_pay')->verify();
+        $order=Order::where('no',$data->out_trade_no)->first();
+        //如果不存在则告知微信支付
+        if(!$order){
+            return 'fail';
+        }
+        //订单已支付
+        if($order->paid_at){
+            return app('wechat_pay')->success();
+        }
+        //将订单标记为已支付
+        $order->update([
+           'paid_at'=>Carbon::now(),
+           'payment_method'=>'wechat',
+           'payment_no'=>$data->transaction_id
+        ]);
+        $this->afterPaid($order);
+        return app('wechat_pay')->success();
+    }
+    protected function afterPaid(Order $order){
+        event(new OrderPaid($order));
     }
 }

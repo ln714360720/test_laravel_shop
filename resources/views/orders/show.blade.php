@@ -28,23 +28,36 @@
                                     </div>
                                     <div>
             <span class="product-title">
-               <a target="_blank" href="{{ route('products.show', [$item->product_id]) }}">{{ $item->product->title }}</a>
+               <a target="_blank"
+                  href="{{ route('products.show', [$item->product_id]) }}">{{ $item->product->title }}</a>
              </span>
                                         <span class="sku-title">{{ $item->productSku->title }}</span>
                                     </div>
                                 </td>
                                 <td class="sku-price text-center vertical-middle">￥{{ $item->price }}</td>
                                 <td class="sku-amount text-center vertical-middle">{{ $item->amount }}</td>
-                                <td class="item-amount text-right vertical-middle">￥{{ number_format($item->price * $item->amount, 2, '.', '') }}</td>
+                                <td class="item-amount text-right vertical-middle">
+                                    ￥{{ number_format($item->price * $item->amount, 2, '.', '') }}</td>
                             </tr>
                         @endforeach
-                        <tr><td colspan="4"></td></tr>
+                        <tr>
+                            <td colspan="4"></td>
+                        </tr>
                     </table>
                     <div class="order-bottom">
                         <div class="order-info" style="width: 300px;float:left ;">
-                            <div class="line"><div class="line-label">收货地址：</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
-                            <div class="line"><div class="line-label">订单备注：</div><div class="line-value">{{ $order->remark ?: '-' }}</div></div>
-                            <div class="line"><div class="line-label">订单编号：</div><div class="line-value">{{ $order->no }}</div></div>
+                            <div class="line">
+                                <div class="line-label">收货地址：</div>
+                                <div class="line-value">{{ join(' ', $order->address) }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">订单备注：</div>
+                                <div class="line-value">{{ $order->remark ?: '-' }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">订单编号：</div>
+                                <div class="line-value">{{ $order->no }}</div>
+                            </div>
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -69,13 +82,33 @@
                             </div>
                             @if(!$order->paid_at && ! $order->closed)
                                 <div class="payment-buttons">
-                                    <a class="btn btn-primary btn-sm" href="{{ route('payment.alipay', ['order' => $order->id]) }}">支付宝支付</a>
+                                    <a class="btn btn-primary btn-sm"
+                                       href="{{ route('payment.alipay', ['order' => $order->id]) }}">支付宝支付</a>
+                                    <a class="btn btn-success btn-sm" id="btn-wechat"
+                                       href="{{ route('payment.wechat', ['order' => $order->id]) }}">微信支付</a>
+
                                 </div>
-                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@endsection
+@section('scriptsAfterJs')
+    <script type="text/javascript">
+        $(function () {
+            $("#btn-wechat").click(function () {
+                swal({
+                   content:$('<img src="{{ route('payment.wechat', ['order' => $order->id]) }}" />')[0],
+                    buttons:['关闭','已完成付款'],
+                }).then(function (result) {
+                    if(result){
+                        location.reload();
+                    }
+                })
+            })
+        })
+    </script>
 @endsection
