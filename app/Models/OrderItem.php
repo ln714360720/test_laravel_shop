@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItem extends Model
 {
     protected $fillable=[
-        'amount','price','rating','review','reviewed_at'
+        'amount','price','rating','review','review_at'
     ];
-    protected $dates=['reviewed_at'];
+    protected $dates=['review_at'];
     public $timestamps=false;
     //定义与商品的关联关系
     public function product()

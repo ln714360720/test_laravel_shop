@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\Request;
+use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
@@ -69,5 +71,50 @@ class OrdersController extends Controller
             'ship_status'=>Order::SHIP_STATUS_RECEIVED
         ]);
         return $order;
+    }
+    
+    public function review(Order $order)
+    {
+        //判断订单权限
+        $this->authorize('own',$order);
+        //判断订单是否已支付
+        if(!$order->paid_at){
+            throw new InvalidRequestException('订单还没有支付!');
+        }
+        return view('orders.review',['order'=>$order->load(['items.product','items.productSku'])]);
+    }
+    
+    public function sendReview(SendReviewRequest $request,Order $order)
+    {
+        //权限检查
+        $this->authorize('own',$order);
+        //判断订单是否已支付
+        if(!$order->paid_at){
+            throw new InvalidRequestException('订单还没有支付!');
+        }
+        //判断订单是否已评价
+        if($order->reviewed){
+            throw new InvalidRequestException('该订单已评价');
+        }
+        $reviews=$request->input('reviews');
+        //开启事务
+        DB::transaction(function ()use ($reviews,$order){
+            //遍历用户提交的数据
+            foreach ($reviews as $review){
+                $orderItem=$order->items()->find($review['id']);
+                //保存评分和评价
+                $orderItem->update([
+                    'rating'=>$review['rating'],
+                    'review'=>$review['review'],
+                    'review_at'=>Carbon::now(),
+                ]);
+            }
+            //修改订单为已评论
+            $order->update([
+               'reviewed'=>true,
+            ]);
+            event(new OrderReviewed($order));
+        });
+        return redirect()->back();
     }
 }
