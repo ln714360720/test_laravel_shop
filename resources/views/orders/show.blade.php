@@ -70,6 +70,18 @@
                                 <div class="line-value">物流公司:{{$order->ship_data['express_company']}}&nbsp;物流订单号:{{$order->ship_data['express_no']}}</div>
                             </div>
                                 @endif
+                            {{--退款信息的开始--}}
+                            @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+                            <div class="line">
+                                <div class="line-label">退款状态：</div>
+                                <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">退款理由：</div>
+                                <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
+                            </div>
+                            @endif
+                            {{--结束--}}
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -99,7 +111,19 @@
                                         </form>
                                     </div>
                                             @endif
+                                        @if($order->paid_at && $order->refund_status ===\App\Models\Order::REFUND_STATUS_PENDING)
+                                    <div class="refund-button">
+                                        <button class="btn btn-sm btn-danger" id="btn-apply-refund">申请退款</button>
+                                    </div>
+                                            @endif
+
                                 </div>
+                                @if(isset($order->extra['refund_disagree_reason']))
+                                <div>
+                                    <span>拒绝退款理由:</span>
+                                    <div class="value">{{$order->extra['refund_disagree_reason']}}</div>
+                                </div>
+                                    @endif
                             </div>
                             @if(!$order->paid_at && ! $order->closed)
                                 <div class="payment-buttons">
@@ -148,6 +172,31 @@
                 //ajax提交确认操作
                 axios.post('{{route('orders.received',[$order->id])}}').then(function () {
                     location.reload();
+                })
+            })
+        })
+        //退款申请按钮
+        $('#btn-apply-refund').click(function () {
+            swal({
+               text:'请输入退款理由',
+               content:"input",
+
+            }).then(function (input) {
+                //当用户点击swal时弹出框上的按钮时触发这个函数
+                if(!input){
+                    swal('退款理由不可空','','error');
+                    return;
+                }
+                axios.post('{{route('order.apply_refund',[$order->id])}}',{reason:input})
+                    .then(function () {
+                    swal('申请退款成功','','success').then(function () {
+                        location.reload();
+                    })
+                }).catch(function (error) {
+                    if(error.response.status ==422){
+                        //说明request 验证不通过
+                        swal(error.response.data.errors.reason[0],'','error');
+                    }
                 })
             })
         })

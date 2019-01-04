@@ -117,4 +117,30 @@ class OrdersController extends Controller
         });
         return redirect()->back();
     }
+    
+    public function applyRefund(Order $order,Request $request)
+    {
+        //验证当前用户权限
+        $this->authorize('own',$order);
+        //验证是否输入退款理由
+        $this->validate($request, ['reason'=>'required'],[],['reason'=>'退款原因']);
+       
+        //判断订单是否已付款
+        if(!$order->paid_at){
+            throw new InvalidRequestException('该订单未支付,不可退款');
+        }
+        //判断当前订单是否已经提交退款申请
+        if($order->refund_status !== Order::REFUND_STATUS_PENDING){
+            throw new InvalidRequestException('该订单已经申请退款,请忽重申请');
+        }
+        //将用户输入的退款理由放到订单的extra字段中
+        $extra=$order->extra?:[];
+        $extra['refund_reason']=$request->input('reason');
+        //将订单退款状态改为已申请退款
+        $order->update([
+            'refund_status'=>Order::REFUND_STATUS_APPLIED,
+            'extra'=>$extra,
+        ]);
+        return $order;
+    }
 }
