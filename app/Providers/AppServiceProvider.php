@@ -53,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
                 $config['log']['level']=Logger::DEBUG;
             }else{
                 $config['log']['level']=Logger::WARNING;
+                $config['notify_url']=route('payment.wechat.refund_notify');
             }
             return Pay::wechat($config);
         });
