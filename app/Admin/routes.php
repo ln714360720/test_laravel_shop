@@ -22,4 +22,12 @@ Route::group([
     $router->get('orders/{order}','OrdersController@show')->name('admin.orders.show');
     $router->post('orders/{order}/ship','OrdersController@ship')->name('admin.orders.ship');
     $router->post('orders/{order}/refund','OrdersController@handleRefund')->name('admin.orders.handle_refund');
+    $router->get('coupon_codes','CouponCodesController@index');
+    $router->get('coupon_codes/create','CouponCodesController@create');//新建优惠
+    $router->post('coupon_codes','CouponCodesController@store');//
+    //编辑
+    $router->get('coupon_codes/{id}/edit','CouponCodesController@edit');
+    $router->put('coupon_codes/{id}','CouponCodesController@update');//更新优惠券
+    //删除
+    $router->delete('coupon_codes/{id}','CouponCodesController@destroy');
 });

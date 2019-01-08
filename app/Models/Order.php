@@ -93,5 +93,13 @@ class Order extends Model
         }while(self::query()->where('refund_no',$no)->exists());
         return $no;
    }
+    
+    /**定义订单与优惠券的关联关系
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function couponCode()
+    {
+        return $this->belongsTo(CouponCode::class);
+   }
 
 }
