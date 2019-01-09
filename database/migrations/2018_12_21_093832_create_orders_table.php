@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->text('address')->comment('json格式的收货地址');
             $table->decimal('total_amount',10,2);
-            $table->text('remark')->comment('订单备注');
+            $table->text('remark')->comment('订单备注')->nullable();
             $table->dateTime('paid_at')->comment('支付时间')->nullable();
             $table->string('payment_method')->comment('支付方式')->nullable();
             $table->string('payment_no')->comment('支付平台订单号')->nullable();

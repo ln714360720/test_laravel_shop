@@ -70,6 +70,19 @@
                                     <textarea name="remark" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
+                            {{--优惠码开始的部分--}}
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">优惠码</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="coupon_code">
+                                    <span class="help-block" id="coupon_desc"></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-success" id="btn-check-coupon">检查</button>
+                                    <button type="button" class="btn btn-danger" style="display: none;" id="btn-cancel-coupon">取消</button>
+                                </div>
+                            </div>
+                            {{--w优惠码结束--}}
                             <div class="form-group">
                                 <div class="col-sm-offset-3 col-sm-3">
                                     <button type="button" class="btn btn-primary btn-create-order">提交订单</button>
@@ -129,6 +142,7 @@
                     address_id: $('#order-form').find('select[name=address]').val(),
                     items: [],
                     remark: $('#order-form').find('textarea[name=remark]').val(),
+                    coupon_code:$('input[name=coupon_code]').val(),
                 };
                 // 遍历 <table> 标签内所有带有 data-id 属性的 <tr> 标签，也就是每一个购物车中的商品 SKU
                 $('table tr[data-id]').each(function () {
@@ -172,7 +186,45 @@
                         }
                     });
             });
+            //获取优惠码
+            $('#btn-check-coupon').click(function () {
+                //获取用户输入的优惠码
+                var code=$("input[name='coupon_code']").val();
+                if(!code){
+                    swal('请输入优惠码','','warning');
+                    return;
+                }
+                //调用检查接口
+                var code=encodeURIComponent(code);
+                axios.get('/coupon_code/'+code)
+                    .then(function (response) {//这是成功后的回调
+                        $('#coupon_desc').text(response.data.description); // 输出优惠信息
+                        $('input[name=coupon_code]').prop('readonly', true); // 禁用输入框
+                        $('#btn-cancel-coupon').show(); // 显示 取消 按钮
+                        $('#btn-check-coupon').hide(); // 隐藏 检查 按钮
+                },function (error) {
+
+                        //这是处理错误代码的
+                       if(error.response.status==404){
+                           swal('优惠码不存在','','error');
+                       }else if(error.response.status==403){
+                           swal(error.response.data.msg,'','error');
+                       }else{
+                           swal('系统内部错误','','error');
+                       }
+                    })
+
+            })
+            // 隐藏 按钮点击事件
+            $('#btn-cancel-coupon').click(function () {
+                $('#coupon_desc').text(''); // 隐藏优惠信息
+                $('input[name=coupon_code]').prop('readonly', false);  // 启用输入框
+                $('#btn-cancel-coupon').hide(); // 隐藏 取消 按钮
+                $('#btn-check-coupon').show(); // 显示 检查 按钮
+            });
 
         });
+
+
     </script>
 @endsection
