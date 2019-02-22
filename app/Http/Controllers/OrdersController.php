@@ -28,10 +28,13 @@ class OrdersController extends Controller
        $items= $request->input('items');
        $coupon=null;
        $coupon_code=$request->input('coupon_code');
-       $coupon=CouponCode::query()->where('code',$coupon_code)->first();
-       if(!$coupon){
-           throw new CouponCodeUnavailableException('优惠券不存在');
+       if($coupon_code){
+           $coupon=CouponCode::query()->where('code',$coupon_code)->first();
+           if(!$coupon){
+               throw new CouponCodeUnavailableException('优惠券不存在');
+           }
        }
+       
        return $orderService->store($user, $address, $remark, $items,$coupon);
     }
     

@@ -29,4 +29,9 @@ class Product extends Model
         }
         return Storage::disk('public')->url($this->attributes['image']);
     }
+    //定义商品与分类关联
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
