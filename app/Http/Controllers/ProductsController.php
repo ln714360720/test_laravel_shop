@@ -12,6 +12,7 @@ class ProductsController extends Controller
     //
     public function index(Request $request)
     {
+    
 //        DB::enableQueryLog();
         $builder=Product::query()->where('on_sale',true);
         if($search=$request->input('search','')){
