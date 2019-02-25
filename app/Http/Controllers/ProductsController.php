@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 class ProductsController extends Controller
 {
     //
@@ -59,7 +58,8 @@ class ProductsController extends Controller
         }
         $products=$builder->paginate(16);
 //        dd(DB::getQueryLog());
-        return view('products.index',['products'=>$products,'category'=>$category??null,'filters'=>['search'=>$search,'order'=>$order]]);
+        return view('products.index',['products'=>$products,
+            'category'=>$category??null,'filters'=>['search'=>$search,'order'=>$order]]);
     }
     
     /**显示商品详情

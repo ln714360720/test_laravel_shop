@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\viewComposers\CategoryTreeComposer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -17,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+        //定义好 ViewComposer 之后我们还需要告诉 Laravel 要把这个 ViewComposer 应用到哪些模板文件里：
+        view()->composer(['products.index','products.show'],CategoryTreeComposer::class);
         // 只在本地开发环境启用 SQL 日志
         if (app()->environment('local')) {
             \DB::listen(function ($query) {
