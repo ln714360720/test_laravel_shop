@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+//        view()->share('lnssm','这是一个lnssm测试');这样写视图里可以共享这一个变量,而不用每个页面云传递,可以使用view对象提供的share方法,在页面里只需要用$lnssm就可以显示
         Schema::defaultStringLength(191);
         // 只在本地开发环境启用 SQL 日志
         if (app()->environment('local')) {
