@@ -9,18 +9,63 @@
                     <!-- 筛选组件开始 -->
                     <div class="row">
                         <form action="{{ route('products.index') }}" class="form-inline search-form">
-                            <input type="text" class="form-control input-sm" name="search" placeholder="搜索">
-                            <button class="btn btn-primary btn-sm" style="margin-left: 20px">搜索</button>
-                            <select name="order" class="form-control input-sm pull-right " style="margin-left: 50px" >
-                                <option value="">排序方式</option>
-                                <option value="price_asc">价格从低到高</option>
-                                <option value="price_desc">价格从高到低</option>
-                                <option value="sold_count_desc">销量从高到低</option>
-                                <option value="sold_count_asc">销量从低到高</option>
-                                <option value="rating_desc">评价从高到低</option>
-                                <option value="rating_asc">评价从低到高</option>
-                            </select>
+                            <div class="form-row">
+                                <div class="col-md-9">
+                                    <div class="form-row">
+                                        {{--面包屑--}}
+                                        <div class="col-auto category-breadcrumb">
+                                            {{--添加一个全部的a链接--}}
+                                            <a href="{{route('products.index')}}" class="all-products">全部</a>
+                                            {{--如果当时的类目是通过筛选的--}}
+                                            @if($category)
+                                                {{--遍历这个类目的所有祖先类目,我们在模型的访问器中已经弄好,可以直接使用--}}
+                                                @foreach($category->ancestors as $ancestor)
+                                                    {{--添加一个名该祖先类目的链接--}}
+                                                    <span class="category">
+                                                        <a href="{{route('products.index',['category_id'=>$ancestor->id])}}">{{$ancestor->name}}</a><span>&gt;</span>
+                                                    </span>
+                                                @endforeach
+                                                {{--最后展示当前类目名称--}}
+                                                <span class="category">{{$category->name}}</span><span> ></span>
+                                                {{--当前类目的id 当用户调整排序方式时,可以保证category_id参数不会丢失--}}
+                                                @endif
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                                <input type="text" class="form-control input-sm" name="search" placeholder="搜索">
+                                <button class="btn btn-primary btn-sm" style="margin-left: 20px">搜索</button>
+                                <select name="order" class="form-control input-sm pull-right " style="margin-left: 50px" >
+                                    <option value="">排序方式</option>
+                                    <option value="price_asc">价格从低到高</option>
+                                    <option value="price_desc">价格从高到低</option>
+                                    <option value="sold_count_desc">销量从高到低</option>
+                                    <option value="sold_count_asc">销量从低到高</option>
+                                    <option value="rating_desc">评价从高到低</option>
+                                    <option value="rating_asc">评价从低到高</option>
+                                </select>
+                            </div>
+
                         </form>
+                    </div>
+                    {{--展示子类目--}}
+                    <div class="filters">
+                        {{--如果当前是通过类目选择,并且些类目是一个父类目--}}
+                        @if($category && $category->is_directory)
+                            <div class="row">
+                                <div class="col-3 filter-key">
+                                    子类目:
+                                </div>
+                                <div class="col-9 filter-values">
+                                    {{--遍历直接子类目--}}
+                                @foreach($category->children as $child)
+                                        <a href="{{route('products.index',['category_id'=>$child->id])}}">{{$child->name}}</a>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                     </div>
                     <div class="row products-list">
                         @foreach($products as $product)
