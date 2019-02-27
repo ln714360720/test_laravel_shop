@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\OrderReviewed;
 use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\CrowdFundingOrderRequest;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\Request;
 use App\Http\Requests\SendReviewRequest;
@@ -153,5 +154,19 @@ class OrdersController extends Controller
             'extra'=>$extra,
         ]);
         return $order;
+    }
+    
+    /**众筹商品下单处理
+     * @param CrowdFundingOrderRequest $request 过滤请求类
+     * @param OrderService             $orderService
+     * @return mixed
+     */
+    public function crowdfunding(CrowdFundingOrderRequest $request,OrderService $orderService)
+    {
+        $user=$request->user();
+        $sku=ProductSku::query()->find($request->input('sku_id'));
+        $address=UserAddress::query()->find($request->input('address_id'));
+        $amount=$request->input('amount');
+        return $orderService->crowdfunding($user, $address, $sku, $amount);
     }
 }

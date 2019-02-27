@@ -57,6 +57,8 @@ Route::group(['middleware'=>'auth'],function (){
     Route::post('orders/{order}/apply_refund','OrdersController@applyRefund')->name('order.apply_refund');
     //获取优惠码
     Route::get('coupon_code/{code}','CouponCodesController@show')->name('coupon_code.show');
+    //众筹商品下单处理
+    Route::post('crowdfunding_orders','OrdersController@crowdfunding')->name('crowdfunding_orders.store');
 });
 //支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');

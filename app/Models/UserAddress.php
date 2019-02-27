@@ -12,6 +12,9 @@ class UserAddress extends Model
         'last_used_at'
     ];
     protected $dates=['last_used_at'];//这个意思呢,定义这个字段为日期的属性
+    protected $appends=[
+        'full_address'
+    ];
     //定义关联关系
     public function user()
     {
