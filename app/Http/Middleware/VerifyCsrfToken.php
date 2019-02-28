@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         //
         'payment/alipay/notify',
         'payment/wechat/notify',
-        'payment/wechat/refund_notify'
+        'payment/wechat/refund_notify',
+        'admin/upload',//配置laravel-admin使用自带的ckeditor上传路径
     ];
 }

@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Request;
+use App\Models\CrowdfundingProduct;
 use App\Models\Order;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
@@ -55,6 +56,12 @@ class OrdersController extends Controller
         //判断当前订单是否已发货
         if($order->ship_status !==Order::SHIP_STATUS_PENDING){
             throw new InvalidRequestException('该订单已发货');
+        }
+        //众筹订单只有在众筹成功之后才可以发货
+        if($order->type===Order::TYPE_CROWDFUNDING && $order->items[0]
+        ->product->crowdfunding->status !==CrowdfundingProduct::STATUS_SUCCESS
+        ){
+            throw  new InvalidRequestException('众筹订单只能在众筹成功后发货');
         }
         //laravel5.5之后,validate 方法可以返回校验过的值
         $data=$this->validate($request, [

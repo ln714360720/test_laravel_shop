@@ -75,4 +75,6 @@ Route::get('alipay',function (){
 });
 Route::get('products','ProductsController@index')->name("products.index");
 Route::get('products/{product}','ProductsController@show')->name("products.show");
+//配置laravel-admin图片上传路由
+Route::post('/admin/upload','\App\Admin\Controllers\UploadController@index');
 
