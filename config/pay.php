@@ -3,7 +3,7 @@
 return[
     'alipay'=>[
         'app_id'=>env('ALIPAY_APP_ID'),
-        'app_public_key'=>env('ALIPAY_APP_PUBLIC_KEY'),
+        'ali_public_key'=>env('ALIPAY_APP_PUBLIC_KEY'),
         
         'private_key'=>env('ALIPAY_PRIVATE_KEY'),
         'log'=>[

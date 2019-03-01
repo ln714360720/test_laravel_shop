@@ -8,6 +8,7 @@ use App\Http\Requests\Request;
 use App\Models\CrowdfundingProduct;
 use App\Models\Order;
 use App\Http\Controllers\Controller;
+use App\Services\OrderService;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -213,7 +214,7 @@ class OrdersController extends Controller
         return $form;
     }
     
-    public function handleRefund(Order $order,Request $request)
+    public function handleRefund(Order $order,Request $request,OrderService $service)
     {
         //验证提交数据,验证数据比较少,就在这验证了
         $this->validate($request, ['agree'=>['required','boolean'],'reason'=>['required_if:agree,false']],[
@@ -235,7 +236,7 @@ class OrdersController extends Controller
                 'extra'=>$extra,
             ]);
             //调用退款逻辑
-            $this->_refundOrder($order);
+            $service->_refundOrder($order);
         }else{
             //将不同意退款的理由放入到extra字段里
             $extra=$order->extra?:[];
@@ -252,61 +253,5 @@ class OrdersController extends Controller
     /**执行退款逻辑
      * @param $order
      */
-    public function _refundOrder($order)
-    {
-        //1.先判断订单的支付方式,进行不同的退款操作,微信和支付宝
-        switch ($order->payment_method){
-            case 'wechat':
-                //先留空
-                $refund_no=Order::getAvailableRefundNo();
-                //调用微信里的退款访求
-                $refundData = [
-                    'out_trade_no' => $order->no,
-                    'out_refund_no' =>$refund_no,
-                    'total_fee' => $order->total_amount*100,//微信是以分为单位的
-                    'refund_fee' => $order->total_amount*100,
-                    'refund_desc' => '退款',
-                    'notify_url'=>route('payment.wechat.refund_notify')
-                ];
-                $ret=app('wechat_pay')->refund($refundData);//// 微信支付的退款结果并不是实时返回的，而是通过退款回调来通知，因此这里需要配上退款回调接口地址
-                //将订单状态改成退款中
-                $order->update([
-                   'refund_no'=>$refund_no,
-                   'refund_status'=>Order::REFUND_STATUS_PROCESSING,
-                ]);
-                break;
-            case 'alipay':
-                //获取唯一的订单号
-                $refund_no=Order::getAvailableRefundNo();
-              //调用支付宝里的退款方法
-            $refundData=[
-                'out_trade_no'=>$order->no,
-                'refund_amount'=>$order->total_amount,//退款金额
-                'out_request_no'=>$refund_no,
-            ];
-            $ret=app('alipay')->refund($refundData);
-            if($ret->sub_code){ //退款成功后,这个字段是没有值的
-                //退款失败后
-                $extra=$order->extra;
-                $extra['refund_fail_code']=$ret->sub_code;
-                //将订单的退款状态标记为退款失败
-                $order->update([
-                   'refund_no'=>$refund_no,
-                   'refund_status'=>Order::REFUND_STATUS_FAILED,
-                   'extra'=>$extra
-                ]);
-            }else{
-                //退款成功,修改退款状态,并保存退款订单号
-                $order->update([
-                   'refund_no'=>$refund_no,
-                   'refund_status'=>Order::REFUND_STATUS_SUCCESS,
-                ]);
-                
-            }
-                break;
-            default:
-                throw  new InternalException('未知订单支付方式:'.$order->payment_method);
-                break;
-        }
-    }
+    
 }

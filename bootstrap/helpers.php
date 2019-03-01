@@ -6,3 +6,11 @@
 function route_class(){
     return str_replace('.', '-', Route::currentRouteName());
 }
+function ngrok_url($routeName,$paramters=[]){
+    //开发环境,并且配置了ngrok_url
+    if(app()->environment('local')&& $url=config('app.ngrok_url')){
+        //route的第三个参数代表绝对路径
+        return $url.route($routeName,$paramters,false);
+    }
+    return route($routeName,$paramters);
+}

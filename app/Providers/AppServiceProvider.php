@@ -44,11 +44,11 @@ class AppServiceProvider extends ServiceProvider
             if(app()->environment() !=='production'){
                 $config['mode']='dev';
                 $config['log']['level']=Logger::DEBUG;
-                $config['notify_url']=route('payment.alipay.notify');
+                $config['notify_url']=ngrok_url('payment.alipay.notify');
                 $config['return_url']=route('payment.alipay.return');
             }else{
                 $config['log']['level']=Logger::WARNING;
-                $config['notify_url']=route('payment.alipay.notify');
+                $config['notify_url']=ngrok_url('payment.alipay.notify');
                 $config['return_url']=route('payment.alipay.return');
             }
             //调用 Yansongda\Pay 来创建一个支付宝对象
@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
                 $config['log']['level']=Logger::DEBUG;
             }else{
                 $config['log']['level']=Logger::WARNING;
-                $config['notify_url']=route('payment.wechat.refund_notify');
+                $config['notify_url']=ngrok_url('payment.wechat.refund_notify');
             }
             return Pay::wechat($config);
         });
