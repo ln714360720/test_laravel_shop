@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\viewComposers\CategoryTreeComposer;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -17,7 +18,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-//        view()->share('lnssm','这是一个lnssm测试');这样写视图里可以共享这一个变量,而不用每个页面云传递,可以使用view对象提供的share方法,在页面里只需要用$lnssm就可以显示
+
+        Carbon::setLocale('zh');//carbon设置为中文
+
         Schema::defaultStringLength(191);
         //定义好 ViewComposer 之后我们还需要告诉 Laravel 要把这个 ViewComposer 应用到哪些模板文件里：
         view()->composer(['products.index','products.show'],CategoryTreeComposer::class);
@@ -43,11 +46,11 @@ class AppServiceProvider extends ServiceProvider
             if(app()->environment() !=='production'){
                 $config['mode']='dev';
                 $config['log']['level']=Logger::DEBUG;
-                $config['notify_url']=route('payment.alipay.notify');
+                $config['notify_url']=ngrok_url('payment.alipay.notify');
                 $config['return_url']=route('payment.alipay.return');
             }else{
                 $config['log']['level']=Logger::WARNING;
-                $config['notify_url']=route('payment.alipay.notify');
+                $config['notify_url']=ngrok_url('payment.alipay.notify');
                 $config['return_url']=route('payment.alipay.return');
             }
             //调用 Yansongda\Pay 来创建一个支付宝对象
@@ -59,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
                 $config['log']['level']=Logger::DEBUG;
             }else{
                 $config['log']['level']=Logger::WARNING;
-                $config['notify_url']=route('payment.wechat.refund_notify');
+                $config['notify_url']=ngrok_url('payment.wechat.refund_notify');
             }
             return Pay::wechat($config);
         });

@@ -16,7 +16,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-
+    //内网穿透地址
+    'ngrok_url'=>env("NGROK_URL"),
     /*
     |--------------------------------------------------------------------------
     | Application Environment

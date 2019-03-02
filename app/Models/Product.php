@@ -8,14 +8,22 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
+    //定义常量区分是普通商品还是众筹商品
+    const TYPE_NORMAL='normal';
+    const TYPE_CROWDFUNDING='crowdfunding';
+    public static $typeMap=[
+        self::TYPE_CROWDFUNDING=>'众筹商品',
+        self::TYPE_NORMAL=>'普通商品',
+    ];
     //
     protected $fillable=[
         'title','description','image','on_sale',
-        'rating','sold_count','review_count','price'
+        'rating','sold_count','review_count','price','type',
     ];
     protected $casts=[
         'on_sale'=>'boolean'
     ];
+    
     //与sku关联
     public function skus()
     {
@@ -33,5 +41,13 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    
+    /**定义商品与众筹商品的关联关系,一对一关系
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function crowdfunding()
+    {
+        return $this->hasOne(CrowdfundingProduct::class);
     }
 }
