@@ -18,7 +18,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
         Carbon::setLocale('zh');//carbon设置为中文
+
         Schema::defaultStringLength(191);
         //定义好 ViewComposer 之后我们还需要告诉 Laravel 要把这个 ViewComposer 应用到哪些模板文件里：
         view()->composer(['products.index','products.show'],CategoryTreeComposer::class);
