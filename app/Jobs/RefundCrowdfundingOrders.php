@@ -8,6 +8,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\OrderService;
+use App\Models\Order;
 // ShouldQueue 代表此任务需要异步执行
 class RefundCrowdfundingOrders implements ShouldQueue
 {
@@ -39,7 +41,7 @@ class RefundCrowdfundingOrders implements ShouldQueue
         Order::query()
             //订单类型为众筹商品的订单
             ->where('type',Order::TYPE_CROWDFUNDING)
-            ->whereNotNull('paid-at')
+            ->whereNotNull('paid_at')
             //查询订单里的所有商品信息
             ->whereHas('items', function ($query)  {
                 $query->where('product_id',$this->crowdfunding->product_id);
@@ -48,4 +50,5 @@ class RefundCrowdfundingOrders implements ShouldQueue
                 $orderService->_refundOrder($order);
             });
     }
+    
 }

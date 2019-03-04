@@ -1,5 +1,7 @@
 <?php
 
+use Moontoast\Math\BigNumber;
+
 /**此方法会将当前请求的路由名称转换为css类名称,作用是允许我们针对某个碳估页面样式定制
  * @return mixed
  */
@@ -13,4 +15,7 @@ function ngrok_url($routeName,$paramters=[]){
         return $url.route($routeName,$paramters,false);
     }
     return route($routeName,$paramters);
+}
+function big_number($number,$scale=2){
+    return new BigNumber($number,$scale);
 }
