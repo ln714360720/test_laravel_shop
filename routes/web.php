@@ -61,6 +61,8 @@ Route::group(['middleware'=>'auth'],function (){
     Route::post('crowdfunding_orders','OrdersController@crowdfunding')->name('crowdfunding_orders.store');
     //分期付款路由
     Route::post('payment/{order}/installment','PaymentController@payByInstallment')->name('payment.installment');
+    //前台用户展示分期列表
+    Route::get('installments','InstallmentsController@index')->name('installments.index');
 });
 //支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');

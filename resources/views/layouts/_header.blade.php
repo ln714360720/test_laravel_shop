@@ -64,6 +64,9 @@
                         <li>
                             <a href="{{route('orders.index')}}">我的订单</a>
                         </li>
+                        <li>
+                            <a href="{{route('installments.index')}}">分期付款</a>
+                        </li>
                     </ul>
                     </li>
 
