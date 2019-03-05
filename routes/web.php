@@ -59,6 +59,8 @@ Route::group(['middleware'=>'auth'],function (){
     Route::get('coupon_code/{code}','CouponCodesController@show')->name('coupon_code.show');
     //众筹商品下单处理
     Route::post('crowdfunding_orders','OrdersController@crowdfunding')->name('crowdfunding_orders.store');
+    //分期付款路由
+    Route::post('payment/{order}/installment','PaymentController@payByInstallment')->name('payment.installment');
 });
 //支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
@@ -66,13 +68,7 @@ Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('pay
 Route::post('payment/wechat/notify','PaymentController@wechatNotify')->name('payment.wechat.notify');
 //微信退款异步通知
 Route::post('payment/wechat/refund_notify','PaymentController@wechatRefundNotify')->name('payment.wechat.refund_notify');
-Route::get('alipay',function (){
-    return app('alipay')->web([
-        'out_trade_no'=>time(),
-        'total_amount'=>1,
-        'subject'=>'test subject - 测试',
-    ]);
-});
+
 Route::get('products','ProductsController@index')->name("products.index");
 Route::get('products/{product}','ProductsController@show')->name("products.show");
 //配置laravel-admin图片上传路由

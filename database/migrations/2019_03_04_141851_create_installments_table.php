@@ -20,10 +20,10 @@ class CreateInstallmentsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->decimal('total_amount',2)->comment('订单金额');
+            $table->decimal('total_amount')->comment('订单金额');
             $table->unsignedInteger('count')->comment('还款期数');
-            $table->decimal('fee_rate',2)->comment('手续费率');
-            $table->decimal('fine_rate',2)->comment('逾期费率');
+            $table->decimal('fee_rate')->comment('手续费率');
+            $table->decimal('fine_rate')->comment('逾期费率');
             $table->string('status')->comment('还款状态')->default(\App\Models\Installment::STATUS_PENDING);
             $table->timestamps();
         });

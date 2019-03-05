@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\InstallmentItem;
+use App\Models\InstallmentItem;
 use Illuminate\Database\Eloquent\Model;
 
 class Installment extends Model
