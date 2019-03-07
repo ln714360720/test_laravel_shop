@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class FinishCrowdfunding extends Command
 {
@@ -59,10 +60,15 @@ class FinishCrowdfunding extends Command
     }
     protected function crowdfundingFail(CrowdfundingProduct $crowdfunding){
         //将众筹状态改为失败状态
-        $crowdfunding->update([
+        try{
+            $crowdfunding->update([
             'status'=>CrowdfundingProduct::STATUS_FAIL,
         ]);
-        dispatch(new RefundCrowdfundingOrders($crowdfunding));
+            dispatch(new RefundCrowdfundingOrders($crowdfunding));
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+        }
+       
     }
     protected function crowdfundingSuccessed(CrowdfundingProduct $crowdfunding){
         //只更新众筹状态

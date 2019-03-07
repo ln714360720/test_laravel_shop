@@ -13,6 +13,8 @@ use App\Models\Order;
 // ShouldQueue 代表此任务需要异步执行
 class RefundCrowdfundingOrders implements ShouldQueue
 {
+    
+    public $tries=3;
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $crowdfunding;
     /**

@@ -65,7 +65,14 @@ Route::group(['middleware'=>'auth'],function (){
     Route::get('installments','InstallmentsController@index')->name('installments.index');
     //分期详情
     Route::get('installments/{installment}','InstallmentsController@show')->name('installment.show');
+    //支付宝支付路由
+    Route::get('installments/{installment}/alipay','InstallmentsController@payByAlipay')->name('installment.alipay');
+    //支付宝前端回调
+    Route::get('installments/alipay/return','InstallmentsController@alipayReturn')->name('installment.alipay.return');
 });
+//支付宝支付成功后返回的异步通知服务,post,不写入中间件里,需要解决csrf问题 分期付款
+Route::post('installments/alipay/notify','InstallmentsController@alipayNotify')->name('installment.alipay.notify');
+
 //支付宝支付成功后返回异步通知服务器 post,需要解决csrf问题,需要在中间件里排除它
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
 //微信异步通知
