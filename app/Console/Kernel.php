@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         //每分钟执行一次
         $schedule->command('cron:finish-crowdfunding')->everyMinute();
+        //daily()代表每天凌晨执行
+        $schedule->command('cron:calculate-installment-fine')->daily();
         // $schedule->command('inspire')
         //          ->hourly();
     }

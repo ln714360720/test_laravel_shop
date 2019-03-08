@@ -167,5 +167,7 @@ class InstallmentsController extends Controller
             }
         });
         return true;
+        
     }
+    
 }
