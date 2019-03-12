@@ -63,4 +63,21 @@ class Installment extends Model
        
         return false;
     }
+    
+    public function refreshRefundStatus()
+    {
+        $allSuccess=true;
+        $this->load('items');//重新加载items 保证与数据库数据同步
+        foreach ($this->items as $item) {
+            if ($item->paid_at && $item->refund_status !== InstallmentItem::REFUND_STATUS_SUCCESS) {
+                $allSuccess = false;
+                break;
+            }
+        }
+        if ($allSuccess) {
+            $this->order->update([
+                'refund_status' => Order::REFUND_STATUS_SUCCESS,
+            ]);
+        }
+    }
 }

@@ -1,3 +1,4 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="box box-info">
     <div class="box-header with-border">
         <h3 class="box-title">订单流水号：{{ $order->no }}</h3>
@@ -110,62 +111,70 @@
         </table>
     </div>
 </div>
+<script src="https://cdn.bootcss.com/limonte-sweetalert2/7.33.1/sweetalert2.all.js"></script>
+<link href="https://cdn.bootcss.com/limonte-sweetalert2/7.33.1/sweetalert2.css" rel="stylesheet">
 <script>
-    $(function () {
+    $(document).ready(function () {
         //不同意退款
-       $("#btn-refund-disagree").click(function () {
+        $("#btn-refund-disagree").click(function () {
 
-          swal({
-              title:'输入拒绝退款理由',
-              type:'input',
-              showCancelButton: true,
-              confirmButtonColor: "#DD6B55",
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              closeOnConfirm: false,
-
-          },function (inputValue) {
-              if(inputValue ===false){
-                  return;
-              }
-              if(!inputValue){
-                  swal('拒绝理由不可为空!','','error');
-                  return;
-              }
-              $.ajax({
-                  url:'{{route('admin.orders.handle_refund',[$order->id])}}',
-                  type:'POST',
-                  data:JSON.stringify({agree:false,reason:inputValue,_token:LA.token}),
-                  contentType: 'application/json',
-                  success:function (data) {//返回成功时会调用这个函数
-                      swal({
-                          title:'操作成功',
-                          type:'success'
-                      },function () {
-                          location.reload();//当用户点击swal上的按钮时刷新页面
-                      })
-                  },
-                  error:function (error) {
-
-                      if(error.status==422){
-                          var html = '<div>';
-                          $.each(error.responseJSON.errors, function (i,errors) {
-                              $.each(errors, function (ii,error) {
-                                  html += error+'<br>';
-                              })
-                          });
-                          html += '</div>';
+            swal({
+                title:'输入拒绝退款理由',
+                input:'text',
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                preConfirm: function (){
+                    return new Promise(function (resolve) {
+                           resolve();
+                    })
+                }
+            }).then(function (result) {
+               if(result.dismiss=='cancel'){
+                   return;
+               }
+                if(!result.value){
+                    swal('拒绝理由不能为空','','error');
+                    return;
+                }
+                var params={};
+                params.agree=false;
+                params.reason=result.value;
+                params._token=LA.token
+                datas=JSON.stringify(params);
+                $.ajax({
+                    url: '{{route('admin.orders.handle_refund',[$order->id])}}',
+                    type: 'POST',
+                    data: datas,
+                    contentType: 'application/json',
+                    success: function (data) {//返回成功时会调用这个函数
+                        swal('操作成功','','success').then(function () {
+                            location.reload();
+                        })
+                    },
+                    error:function (error) {
+                        if (error.status == 422) {
+                            var html = '<div>';
+                            $.each(error.responseJSON.errors, function (i, errors) {
+                                $.each(errors, function (ii, error) {
+                                    html += error + '<br>';
+                                })
+                            });
+                            html += '</div>';
                             swal({
-                                title:'提示',
-                                text:html,
-                                html:true
+                                title: '提示',
+                                text: html,
+                                html: true
                             })
-                      }
-                  }
+                        }
+                    }
+                });
 
-              })
-          })
-       });
+
+            })
+        });//doucument
+        //同意退款的
         $('#btn-refund-agree').click(function () {
             swal({
                 title:'确认要进行退款操作吗?',
@@ -173,31 +182,31 @@
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
                 confirmButtonText: "确定",
-                closeOnConfirm: false
-            },function (ret) {
-                //用户点击取消,不做任何操作
-                if(!ret){
-                    return ;
-                }
-                $.ajax({
+            }).then(function (result) {
+               if(result.dismiss=='cancel'){
+                   return;
+               }
+               if(result.value){
+                   $.ajax({
                     url:'{{route('admin.orders.handle_refund',[$order->id])}}',
                     type:'POST',
                     data:JSON.stringify({
-                        agree:true,//代表同意退款
-                        _token:LA.token,
+                    agree:true,//代表同意退款
+                    _token:LA.token,
                     }),
                     contentType:'application/json',
                     success:function (data) {
                         swal({
-                            title:'操作成功',
-                            type:'success'
-                        },function () {
-                            //location.reload();
+                        title:'操作成功',
+                        type:'success'
+                        }).then(function () {
+                            location.reload();
                         })
-                    }
-                })
-
+                        }
+                    })
+               }
             })
         })
+
     })
 </script>

@@ -72,6 +72,8 @@ Route::group(['middleware'=>'auth'],function (){
     //微信分期相关路由
     Route::get('installments/{installment}/wechat','InstallmentsController@payByWechat')->name('installment.wechat');
 });
+//微信分期退款异步通知
+Route::post('installments/wechat/refund_notify','InstallmentsController@wechatRefundNotify')->name('installmens.wechat.refund_notify');
 //微信分期异步通知
 Route::post('installments/wechat/notify','InstallmentsController@wechatNotify')->name('installment.wechat.notify');
 //支付宝支付成功后返回的异步通知服务,post,不写入中间件里,需要解决csrf问题 分期付款
