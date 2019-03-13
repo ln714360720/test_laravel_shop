@@ -20,6 +20,7 @@ $factory->define(App\Models\Product::class, function (Faker $faker) {
     ]);//随机几张图片
     return [
        'title'=>$faker->word,
+        'long_title'=>$faker->sentence,
         'description'=>$faker->sentence,//句子
         'image'=>$image,
         'on_sale'=>true,
