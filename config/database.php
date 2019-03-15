@@ -116,5 +116,10 @@ return [
         ],
 
     ],
+    //全文搜索
+    'elasticsearch'=>[
+        //Elasticsearch支付多台服务器负载均衡
+        'hosts'=>explode(',',env('ES_HOSTS')),
+    ],
 
 ];

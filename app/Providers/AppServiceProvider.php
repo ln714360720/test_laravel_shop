@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Monolog\Logger;
 use Yansongda\Pay\Pay;
+use Elasticsearch\ClientBuilder as ESClientBuilder;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -65,6 +66,17 @@ class AppServiceProvider extends ServiceProvider
                 $config['notify_url']=ngrok_url('payment.wechat.refund_notify');
             }
             return Pay::wechat($config);
+        });
+        //注册一个人名为es的实例
+        $this->app->singleton('es', function () {
+            //从配置文件读取Elasticsearch服务器列表
+            $builder=ESClientBuilder::create()->setHosts(config('database.elasticsearch.hosts'));
+            //如果是开发环境
+            if(app()->environment()==='local'){
+                //配置日志,Elasticsearch 的请求和响应都写日志里
+                $builder->setLogger(app('log')->driver());
+            }
+            return $builder->build();
         });
     }
 }
