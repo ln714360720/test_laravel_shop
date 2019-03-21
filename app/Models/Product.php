@@ -76,7 +76,7 @@ class Product extends Model
             'sold_count','review_count','price'
         ]);
         //如果商品有类目,则category字段为类目名数组,否则为空字符串
-        $arr['category']=$this->category?explode(' - ', $this->category->full_name):'';
+        $arr['category']=$this->category?explode('-', $this->category->full_name):'';
         //类目的path字段
         $arr['category_path']=$this->category?$this->category->path:'';
         //strip_tags函数可以将html标签去除
