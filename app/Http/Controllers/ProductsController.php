@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ProductsController extends Controller
@@ -15,6 +16,7 @@ class ProductsController extends Controller
     //
     public function index(Request $request)
     {
+       
         $page=$request->input('page',1);
         $perPage=16;
         //构建查询
@@ -24,11 +26,12 @@ class ProductsController extends Controller
             'body'=>[
                 'from'=>($page-1)*$perPage,//通过当前页数与每页数量计算偏移值
                 'size'=>$perPage,
+                
                 'query'=>[
                     'bool'=>[
                         'filter'=>[
                             ['term'=>['on_sale'=>true]],
-                        ]
+                        ],
                     ]
                 ]
             ]
@@ -63,40 +66,44 @@ class ProductsController extends Controller
         }
         //关键词搜索
         if($search=$request->input('search','')){
-            $param=[
-                'body'=>[
-                    'text'=>$search,
-                    'analyzer'=>'ik_smart'
-                ]
-            ];
-            $res=app('es')->indices()->analyze($param);//获取分词后的数据
-            //格式如下
+            /**这是关键字搜索,分为两种情况, 一种是用户输入的值,中间没有空格的时候,如 '内存条金士顿',还有一种情况是用户输入的关键字中间有空格
+             * 下面的是第一种没有空格的,先使用分词器,获取分词后的结果,暂时同义词搜索还没有实现如 搜 苹果手机时,分出现iphone的商品
+             */
+       
+//            $param=[
+//                'index'=>'products',
+//                'body'=>[
+//                    'text'=>$search,
+//                    'analyzer'=>'ik_smart',
+//
+//                ]
+//            ];
+//            $res=app('es')->indices()->analyze($param);//获取分词后的数据
+////
+//////////            //通过collect 提取token字段
+//            $keywords=collect($res['tokens'])->pluck('token')->all();
+////            //遍历搜索数组,分别添加到must查询中
+////
+//            foreach ($keywords as $keyword) {
+//                $params['body']['query']['bool']['must'][]=[
+//                    'multi_match'=>[
+//                        'query'=>$keyword,
+//                        'fields'=>[
+//                            'title^2','long_title^2','category^2','description',
+//                            'skus_title','skus_description','properties_value',
+//                        ],
+//                        'analyzer'=>'ik_smart_synonym'
+//                    ],
+//                ];
+//            }
             /**
-             * array:1 [▼
-            "tokens" => array:2 [▼
-            0 => array:5 [▼
-            "token" => "内存条"
-            "start_offset" => 0
-            "end_offset" => 3
-            "type" => "CN_WORD"
-            "position" => 0
-            ]
-            1 => array:5 [▼
-            "token" => "金士顿"
-            "start_offset" => 3
-            "end_offset" => 6
-            "type" => "CN_WORD"
-            "position" => 1
-            ]
-            ]
-            ]
-             **/
-            //通过collect 提取token字段
-            $keywords=collect($res['tokens'])->pluck('token')->all();
-   
+             * 没有空格的结束
+             */
 //            =========
-           
-//            $keywords=array_filter(explode(' ', $search));
+            /**
+             * 这是用户输入的关键字中间有空格时,这个是有同义词的匹配的
+             */
+          $keywords=array_filter(explode(' ', $search));
             $params['body']['query']['bool']['must']=[];
             //遍历搜索数组,分别添加到must查询中
             foreach ($keywords as $keyword) {
@@ -107,10 +114,13 @@ class ProductsController extends Controller
                             'title^2','long_title^2','category^2','description',
                             'skus_title','skus_description','properties_value',
                         ],
+
                     ],
                 ];
             }
-            
+            /**
+             * 有空格的结束
+             */
 //            =======
             //只有当是搜索时或者是点击了分类时,才会触发聚合操作
             if($search || isset($category)) {
@@ -172,6 +182,7 @@ class ProductsController extends Controller
                 ];
             }
         }
+       
         $result=app('es')->search($params);
         //处理分面搜索
         $properties=[];

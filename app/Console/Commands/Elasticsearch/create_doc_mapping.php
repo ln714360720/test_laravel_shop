@@ -43,7 +43,22 @@ class create_doc_mapping extends Command
             "body"=>[
                 'settings'=>[
                     'number_of_shards' => 3,
-                    'number_of_replicas' => 2
+                    'number_of_replicas' => 2,
+                    'analysis'=>[
+                        'filter'=>[
+                            'synonym_filter'=>[
+                                'type'=>'synonym',
+                                'synonyms_path'=>'analysis/synonyms.txt',
+                            ]
+                        ],
+                        'analyzer'=>[
+                            'ik_smart_synonym'=>[
+                                'type'=>'custom',
+                                'tokenizer'=>'ik_smart',
+                                'filter'=>['synonym_filter']
+                            ]
+                        ]
+                    ]
                 ],
                 "mappings"=>[ //这是mapping关键字
                   '_doc'=>[//这里是 type名称
@@ -59,10 +74,12 @@ class create_doc_mapping extends Command
                           "title"=>[
                               "type"=>"text",
                               "analyzer"=>"ik_smart",
+                              "search_analyzer"=>'ik_smart_synonym',
                           ],
                         "long_title"=>[
                             "type"=>"text",
-                            "analyzer"=>"ik_smart"
+                            "analyzer"=>"ik_smart",
+                            "search_analyzer"=>'ik_smart_synonym',
                         ],
                         "category_id"=>[
                             "type"=>"integer",
@@ -76,6 +93,7 @@ class create_doc_mapping extends Command
                         "description"=>[
                             "type"=>"text",
                             "analyzer"=>"ik_smart",
+                            "search_analyzer"=>'ik_smart_synonym',
                         ],
                         "price"=>[
                             "type"=>"scaled_float",//对于浮点类型，使用缩放因子将浮点数据存储到整数中通常更有效，这是该scaled_float 类型所做的。例如，一个price字段可以存储在 scaled_floata scaling_factor中100
@@ -100,11 +118,13 @@ class create_doc_mapping extends Command
                                     "type"=>"text",
                                     "analyzer"=>"ik_smart",
                                     "copy_to"=>"skus_title",
+                                    "search_analyzer"=>'ik_smart_synonym',
                                 ],
                                 "description"=>[
                                     "type"=>"text",
                                     "analyzer"=>"ik_smart",
                                     "copy_to"=>"skus_description",
+                                    "search_analyzer"=>'ik_smart_synonym',
                                 ],
                                 "price"=>[
                                     "type"=>"scaled_float",
