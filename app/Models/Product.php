@@ -91,4 +91,8 @@ class Product extends Model
         });
         return $arr;
     }
+    //定义一个scope
+    public function scopeByIds($query,$ids){
+        return $query->whereIn('id',$ids)->orderByRaw(sprintf("find_in_set(id,'%s')",join(',', $ids)));
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\SearchBuilders\ProductSearchBuilder;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -78,8 +79,7 @@ class ProductsController extends Controller
         //通过collect 函数将返回的结果转化为对象,并通过pluck访求取到id
         $productIds=collect($result['hits']['hits'])->pluck('_id')->all();
         //通过whereIn方法从数据库中读取商品数据
-        $products=Product::query()->whereIn('id', $productIds)
-            ->orderByRaw(sprintf("FIND_IN_SET(id,'%s')",join(',', $productIds)))
+        $products=Product::query()->byIds($productIds)
             ->get();
         //返回一个lengthAwarepaginator对象
         $pager=new LengthAwarePaginator($products, $result['hits']['total'], $perPage,$page,['path'=>route('products.index',false)]);
@@ -353,7 +353,7 @@ class ProductsController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws InvalidRequestException
      */
-    public function show(Request $request,Product $product)
+    public function show(Request $request,Product $product,ProductService $service)
     {
         //判断是否上架,如果没有上架,则抛出异常
         if(!$product->on_sale){
@@ -367,7 +367,11 @@ class ProductsController extends Controller
             ->where('product_id',$product->id)
             ->whereNotNull('review_at')->orderBy('review_at','desc')
             ->limit(10)->get();
-        return view('products.show',['product'=>$product,'favorite'=>$favorite,'reviews'=>$reviews]);
+        //搜索相似商品
+        $similarProductIds=$service->getSimilarProductIds($product, 4);
+        //根据Elasticsearch搜索出来id从数据库中赢取商品数据
+        $similarProducts=Product::query()->byIds($similarProductIds)->get();
+        return view('products.show',['similar' => $similarProducts,'product'=>$product,'favorite'=>$favorite,'reviews'=>$reviews]);
     }
     
     /**用户添加收藏
