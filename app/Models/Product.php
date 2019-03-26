@@ -91,7 +91,7 @@ class Product extends Model
         });
         return $arr;
     }
-    //定义一个scope
+    //定义一个本地作用域scope,本地作用域能定义通用的约束集合以便在应用中复用。例如，你可能经常需要检索最受欢迎的用户，为此要定义一个作用域，只需要在 scope 前加上一个 Eloquent 模型方法即可。
     public function scopeByIds($query,$ids){
         return $query->whereIn('id',$ids)->orderByRaw(sprintf("find_in_set(id,'%s')",join(',', $ids)));
     }
