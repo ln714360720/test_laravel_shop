@@ -16,7 +16,7 @@
                                         {{--面包屑--}}
                                         <div class="col-auto category-breadcrumb">
                                             {{--添加一个全部的a链接--}}
-                                            <a href="{{route('products.index')}}" class="all-products">全部</a>
+                                            <a href="{{route('products.index')}}" class="all-products">全部111</a>
                                             {{--如果当时的类目是通过筛选的--}}
                                             @if($category)
                                                 {{--遍历这个类目的所有祖先类目,我们在模型的访问器中已经弄好,可以直接使用--}}
