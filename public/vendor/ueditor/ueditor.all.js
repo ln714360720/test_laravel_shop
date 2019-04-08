@@ -11097,7 +11097,6 @@ UE.commands['insertimage'] = {
         var me = this,
             range = me.selection.getRange(),
             img = range.getClosedNode();
-
         if(me.fireEvent('beforeinsertimage', opt) === true){
             return;
         }

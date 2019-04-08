@@ -72,6 +72,8 @@ Route::group(['middleware'=>'auth'],function (){
     Route::get('installments/alipay/return','InstallmentsController@alipayReturn')->name('installment.alipay.return');
     //微信分期相关路由
     Route::get('installments/{installment}/wechat','InstallmentsController@payByWechat')->name('installment.wechat');
+    //商品秒杀的路由
+    Route::post('seckill_orders','OrdersController@seckill')->name('secking_orders.store');
 });
 //微信分期退款异步通知
 Route::post('installments/wechat/refund_notify','InstallmentsController@wechatRefundNotify')->name('installmens.wechat.refund_notify');

@@ -94,13 +94,17 @@ abstract class CommonProductsController extends Controller
            $form->text('name','属性名')->rules('required');
            $form->text('value','属性值')->rules('required');
         });
+        //在保存前
         $form->saving(function (Form $form) {
             
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
+            
+        });
+        //在新建/修改之后
+        $form->saved(function (Form $form) {
             $product=$form->model();
             $this->dispatch(new SyncOneProductToES($product));
         });
-    
         return $form;
     }
     abstract public function customForm(Form $form);

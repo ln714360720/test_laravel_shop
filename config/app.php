@@ -4,6 +4,8 @@ return [
     //订单有效时间
     
     'order_ttl'=>1800,
+    //秒杀订单关闭时间
+    'seckill_order_ttl'=>600,
     //分期付款相关配置
     'installment_fee_rate'=>[
         3=>1.5,6=>2,12=>2.5

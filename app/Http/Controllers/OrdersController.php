@@ -8,6 +8,7 @@ use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\CrowdFundingOrderRequest;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\Request;
+use App\Http\Requests\SeckillOrderRequest;
 use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
 use App\Models\CouponCode;
@@ -172,5 +173,13 @@ class OrdersController extends Controller
         $address=UserAddress::query()->find($request->input('address_id'));
         $amount=$request->input('amount');
         return $orderService->crowdfunding($user, $address, $sku, $amount);
+    }
+    //秒杀商品
+    public function seckill(SeckillOrderRequest $request,OrderService $orderService)
+    {
+        $user=$request->user();
+        $address=UserAddress::query()->find($request->input('address_id'));
+        $sku=ProductSku::query()->find($request->input('sku_id'));
+        return $orderService->seckill($user, $address, $sku);
     }
 }

@@ -83,6 +83,19 @@
                                             @else
                                             <a href="{{route('login')}}" class="btn btn-primary">请先登录</a>
                                             @endif
+                                            {{--秒杀商品下单按钮开始--}}
+                                        @elseif($product->type ===\App\Models\Product::TYPE_SECKILL)
+                                        @if(Auth::check())
+                                                @if($product->seckill->is_before_start)
+                                                    <button class="btn btn-primary btn-seckill disabled countdown">抢购倒计时</button>
+                                                    @elseif($product->seckill->is_after_end)
+                                                    <button class="btn btn-primary btn-seckill disabled">抢购已结束</button>
+                                                    @else
+                                                        <button class="btn btn-primary btn-seckill">立即抢购</button>
+                                                    @endif
+                                            @else
+                                            <a href="{{route('login')}}" class="btn btn-primary">请先登录</a>
+                                            @endif
                                         @else
                                         <button class="btn btn-primary btn-add-to-cart">加入购物车</button>
                                         @endif
@@ -171,7 +184,110 @@
     </div>
 @endsection
 @section('scriptsAfterJs')
+    {{--如果是秒杀商品并且还没有开始秒杀,则引入moment.js类库--}}
+    @if($product->type==\App\Models\Product::TYPE_SECKILL && $product->seckill->is_before_start)
+        <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
+        @endif
     <script type="text/javascript">
+        $(function () {
+            //如果是秒杀商品并且还没有开始
+
+                    @if($product->type==\App\Models\Product::TYPE_SECKILL && $product->seckill->is_before_start)
+            //将秒杀开始时间转成一个moment对象
+                    var startTime=moment.unix({{$product->seckill->start_at->getTimestamp()}});
+                    console.log(startTime);
+                    //设定一个定时器
+                    var hd1=setInterval(function () {
+                        //获取当前时间
+                        var now=moment();
+                        //如果当前时间晚于秒杀开始时间
+                        if(now.isAfter(startTime)){
+                            //将秒杀按钮上的disabled类移除,修改按钮文件
+                            $('.btn-seckill').removeClass('disabled').removeClass('countdown').text('立即抢购');
+                            clearInterval(hd1);
+                            return;
+                        }
+                        //获取当前时间与秒杀相差的小时,分钟,秒数
+                        var dayDiff=startTime.diff(now,'days');
+                        var hourDiff=startTime.diff(now,'hours')%24;
+                        var minDiff=startTime.diff(now,'minutes')%60;
+                        var secDiff=startTime.diff(now ,'seconds')%60;
+                            if(secDiff<10){
+                              var  secDiff= '0'+secDiff;
+                            }
+
+                        if(0<dayDiff && dayDiff<10){
+                            var  dayDiff= '0'+dayDiff;
+                        }
+                        if(hourDiff<10){
+                            var  hourDiff= '0'+hourDiff;
+                        }
+                        if(minDiff<10){
+                            var  minDiff= '0'+minDiff;
+                        }
+                        //修改按钮的文件
+                        $('.btn-seckill').text('抢购倒计时 '+dayDiff+' 天:'+hourDiff+' 小时:'+minDiff+' 分钟:'+secDiff+' 秒')
+                    },500);
+                    @endif
+                    //秒杀按钮点击事件
+                $('.btn-seckill').click(function () {
+                    //如果秒杀按钮上的disabled
+                    if($(this).hasClass('disabled')){
+                        return;
+                    }
+                    if(!$('label.active input[name=skus]').val()){
+                        swal('请先选择商品');
+                        return;
+                    }
+                    //把用户的收货地址以json的形式放入页面
+                    var addresses={!! json_encode(Auth::check() ? Auth::user()->addresses : []) !!};
+                   //使用jquery动态创建一个下拉框
+                    var addressSelector=$('<select class="form-control"></select>');
+                    // 循环每个收货地址
+                    addresses.forEach(function (address) {
+                        //把当前收货地址添加到地址下拉框选项中
+                        addressSelector.append('<option value="'+address.id+'">'+address.full_address+' '+address.contact_name+' '+address.contact_phone+'</option>');
+                    });
+                    //调用swalAler弹框
+                    swal({
+                        'text':"选择收货地址",
+                        content:addressSelector[0],
+                        buttons:['取消','确定']
+                    }).then(function(ret){
+                        //如果用户没有点击确定按钮,则什么也不做
+                        if(!ret){
+                            return ;
+                        }
+                        //构建请求参数
+                        var req={
+                            address_id:addressSelector.val(),
+                            sku_id:$("label.active input[name=skus]").val()
+                        };
+                        //调用秒杀商品接口
+                        axios.post('{{route('secking_orders.store')}}',req).then(function (response) {
+                            swal('订单提交成功','','success').then(()=>{
+                               location.href='/orders/'+response.data.id;
+                            });
+                        },function(error){
+                            // 输入参数校验失败，展示失败原因
+                            if (error.response.status === 422) {
+                                var html = '<div>';
+                                _.each(error.response.data.errors, function (errors) {
+                                    _.each(errors, function (error) {
+                                        html += error+'<br>';
+                                    })
+                                });
+                                html += '</div>';
+                                swal({content: $(html)[0], icon: 'error'})
+                            } else if (error.response.status === 403) {
+                                swal(error.response.data.msg, '', 'error');
+                            } else {
+                                swal('系统错误', '', 'error');
+                            }
+                        })
+                    })
+                })
+        })
         $(function () {
             $('[data-toggle="tooltip"]').tooltip({trigger:'hover'});
             $('.product-info .stock').text('库存' + $('.sku-btn').data('stock') + '件');
@@ -260,6 +376,7 @@
                         })
                 })
             })
+
         })
         //收藏
         $('.btn-favor').click(function () {
